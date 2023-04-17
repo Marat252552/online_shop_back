@@ -3,16 +3,23 @@ import dotenv from 'dotenv'
 import {User, Basket, BasketDevice, Device, DeviceInfo, Brand, Type, Rating, TypeBrand} from './db/models'
 import db from './db/db'
 import bodyParser from 'body-parser'
+import GetAuthRouter from './routes/Auth/router'
+import cors from 'cors'
 
 dotenv.config()
 const app = express()
 
-
-
 app.use(bodyParser.urlencoded({
     extended: true
 }))
+app.use(cors({
+    credentials: true,
+    origin: ['http://localhost:5173']
+}))
 
+const AuthRouter = GetAuthRouter()
+
+app.use('/auth', AuthRouter)
 
 const Start = async () => {
     let PORT = process.env.PORT
