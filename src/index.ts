@@ -5,6 +5,7 @@ import db from './db/db'
 import bodyParser from 'body-parser'
 import GetAuthRouter from './routes/Auth/router'
 import cors from 'cors'
+import GetAdminRouter from './routes/Admin/router'
 
 dotenv.config()
 const app = express()
@@ -18,7 +19,9 @@ app.use(cors({
 }))
 
 const AuthRouter = GetAuthRouter()
+const AdminRouter = GetAdminRouter()
 
+app.use('/admin', AdminRouter)
 app.use('/auth', AuthRouter)
 
 const Start = async () => {
