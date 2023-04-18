@@ -17,12 +17,13 @@ export const BasketDevice = db.define('basket_device', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
 })
 
-export const Device = db.define('device', {
+export const Item = db.define('item', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, allowNull: false},
+    description: {type: DataTypes.STRING, allowNull: false},
     price: {type: DataTypes.STRING, allowNull: false},
     rating: {type: DataTypes.STRING, allowNull: false},
-    img: {type: DataTypes.STRING, allowNull: false},
+    imgName: {type: DataTypes.STRING, allowNull: false},
 })
 
 export const DeviceInfo = db.define('device_info', {
@@ -33,7 +34,8 @@ export const DeviceInfo = db.define('device_info', {
 
 export const Brand = db.define('brand', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, unique: true}
+    name: {type: DataTypes.STRING, unique: true},
+    imgName: {type: DataTypes.STRING, unique: true}
 })
 
 export const Type = db.define('type', {
@@ -41,7 +43,7 @@ export const Type = db.define('type', {
     name: {type: DataTypes.STRING, unique: true}
 })
 
-export const Rating = db.define('type', {
+export const Rating = db.define('rating', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     rate: {type: DataTypes.INTEGER}
 })
@@ -62,20 +64,20 @@ BasketDevice.belongsTo(Basket)
 Basket.hasMany(BasketDevice)
 BasketDevice.belongsTo(Basket)
 
-Device.hasMany(BasketDevice)
-BasketDevice.belongsTo(Device)
+Item.hasMany(BasketDevice)
+BasketDevice.belongsTo(Item)
 
-Device.hasMany(DeviceInfo)
-DeviceInfo.belongsTo(Device)
+Item.hasMany(DeviceInfo)
+DeviceInfo.belongsTo(Item)
 
-Brand.hasMany(Device)
-Device.belongsTo(Brand)
+Brand.hasMany(Item)
+Item.belongsTo(Brand)
 
-Type.hasMany(Device)
-Device.belongsTo(Type)
+Type.hasMany(Item)
+Item.belongsTo(Type)
 
-Device.hasMany(Rating)
-Rating.belongsTo(Device)
+Item.hasMany(Rating)
+Rating.belongsTo(Item)
 
 Type.belongsToMany(Brand, {through: TypeBrand})
 Brand.belongsToMany(Type, {through: TypeBrand})

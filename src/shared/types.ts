@@ -4,3 +4,16 @@ export type TokenData_T = {
     role: string,
     basketId: number
 }
+
+export type Item_T = {
+    id: number,
+    name: string,
+    description: string,
+    price: number,
+    rating: number,
+    imgName: string,
+    createdAt: string,
+    updatedAt: string,
+    brandId: number,
+    typeId: number
+}
