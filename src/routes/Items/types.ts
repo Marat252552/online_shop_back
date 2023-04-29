@@ -12,7 +12,6 @@ export type createItemReq_T = {
         name: string,
         description: string
         price: string,
-        rating: string,
         typeId: number,
         brandId: number
     },
@@ -21,6 +20,11 @@ export type createItemReq_T = {
     }
 }
 
+export type deleteItemReq_T = {
+    params: {
+        id: number
+    }
+}
 export type getItemReq_T = {
     params: {
         id: number

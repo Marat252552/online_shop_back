@@ -14,3 +14,10 @@ export type getBrandReq_T = {
         id: number
     }
 }
+
+export type getBrandsReq_T = {
+    query: {
+        offset: number,
+        limit: number
+    }
+}

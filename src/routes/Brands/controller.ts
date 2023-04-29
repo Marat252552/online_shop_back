@@ -1,5 +1,5 @@
 import { v4 } from "uuid"
-import { createBrandReq_T, getBrandReq_T } from "./types"
+import { createBrandReq_T, getBrandReq_T, getBrandsReq_T } from "./types"
 import path from 'path'
 import { Brand, Item } from "../../db/models"
 
@@ -43,11 +43,15 @@ class BrandsController {
             res.sendStatus(400).end()
         }
     }
-    async getBrands(req: any, res: any) {
+    async getBrands(req: getBrandsReq_T, res: any) {
         try {
-            let brands = await Brand.findAll()
+            let {offset, limit} = req.query
+            let brands = await Brand.findAll({
+                offset, limit
+            })
+            let brandsAmount = await Brand.count()
             res
-                .json({brands})
+                .json({brands, brandsAmount})
                 .status(200)
                 .end()
         } catch(e) {

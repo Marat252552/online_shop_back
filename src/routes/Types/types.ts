@@ -5,3 +5,10 @@ export type createTypeReq_T = {
         name: string
     }
 }
+
+export type getTypesReq_T = {
+    query: {
+        offset: number,
+        limit: number
+    }
+}

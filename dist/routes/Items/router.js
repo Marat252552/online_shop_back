@@ -10,6 +10,7 @@ const GetItemsRouter = () => {
     router.get('/:id', controller_1.default.getItem);
     router.get('/', controller_1.default.getItems);
     router.post('/', controller_1.default.createItem);
+    router.delete('/:id', controller_1.default.deleteItem);
     return router;
 };
 exports.default = GetItemsRouter;

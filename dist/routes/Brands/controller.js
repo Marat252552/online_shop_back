@@ -63,9 +63,13 @@ class BrandsController {
     getBrands(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let brands = yield models_1.Brand.findAll();
+                let { offset, limit } = req.query;
+                let brands = yield models_1.Brand.findAll({
+                    offset, limit
+                });
+                let brandsAmount = yield models_1.Brand.count();
                 res
-                    .json({ brands })
+                    .json({ brands, brandsAmount })
                     .status(200)
                     .end();
             }

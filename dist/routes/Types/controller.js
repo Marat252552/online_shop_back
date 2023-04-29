@@ -32,5 +32,25 @@ class TypesController {
             }
         });
     }
+    getTypes(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { offset, limit } = req.query;
+                let types = yield models_1.Type.findAll({
+                    offset,
+                    limit
+                });
+                let typesAmount = yield models_1.Type.count();
+                res
+                    .json({ types, typesAmount })
+                    .status(200)
+                    .end();
+            }
+            catch (e) {
+                console.log(e);
+                res.sendStatus(400).end();
+            }
+        });
+    }
 }
 exports.default = new TypesController();

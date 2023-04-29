@@ -1,5 +1,5 @@
 import { Type } from "../../db/models"
-import { createTypeReq_T } from "./types"
+import { createTypeReq_T, getTypesReq_T } from "./types"
 
 
 
@@ -16,6 +16,23 @@ class TypesController {
             res
                 .json({type})
                 .status(201)
+                .end()
+        } catch(e) {
+            console.log(e)
+            res.sendStatus(400).end()
+        }
+    }
+    async getTypes(req: getTypesReq_T, res: any) {
+        try {
+            let {offset, limit} = req.query
+            let types = await Type.findAll({
+                offset,
+                limit
+            })
+            let typesAmount = await Type.count()
+            res
+                .json({types, typesAmount})
+                .status(200)
                 .end()
         } catch(e) {
             console.log(e)

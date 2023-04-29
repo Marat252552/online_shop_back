@@ -8,6 +8,7 @@ const controller_1 = __importDefault(require("./controller"));
 const GetTypesRouter = () => {
     let router = express_1.default.Router();
     router.post('/', controller_1.default.createType);
+    router.get('/', controller_1.default.getTypes);
     return router;
 };
 exports.default = GetTypesRouter;

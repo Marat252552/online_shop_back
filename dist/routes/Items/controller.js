@@ -18,26 +18,28 @@ const path_1 = __importDefault(require("path"));
 class ItemsController {
     getItems(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('-----------------------------------', req.query);
             try {
                 let { brandId, typeId, limit, offset } = req.query;
                 if (!offset || !limit) {
                     return res.sendStatus(400).end();
                 }
                 let items = {};
-                if (brandId && typeId) {
+                if (brandId !== 'ANY' && typeId !== 'ANY') {
                     items = (yield models_1.Item.findAll({ limit, offset, where: { brandId, typeId }, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
                 }
-                if (brandId && !typeId) {
+                if (brandId !== 'ANY' && typeId === 'ANY') {
                     items = (yield models_1.Item.findAll({ where: { brandId }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
                 }
-                if (!brandId && typeId) {
+                if (brandId === 'ANY' && typeId !== 'ANY') {
                     items = (yield models_1.Item.findAll({ where: { typeId }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
                 }
-                if (!brandId && !typeId) {
-                    items = (yield models_1.Item.findAll({ limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                if (brandId === 'ANY' && typeId === 'ANY') {
+                    items = (yield models_1.Item.findAll({ offset, limit, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
                 }
+                let itemsAmount = yield models_1.Item.count();
                 res
-                    .json({ items })
+                    .json({ items, itemsAmount })
                     .status(200)
                     .end();
             }
@@ -87,10 +89,13 @@ class ItemsController {
     }
     createItem(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('-----------------------------', req.body);
+            console.log('-----------------------------', req.files.img);
             try {
-                let { name, price, rating, brandId, typeId, description } = req.body;
+                let { name, price, brandId, typeId, description } = req.body;
+                let rating = 0;
                 let { img } = req.files;
-                if (!name || !price || !rating || !img || !brandId || !typeId || !description) {
+                if (!name || !price || !img || !brandId || !typeId || !description) {
                     return res.sendStatus(400).end();
                 }
                 let imgName = (0, uuid_1.v4)() + '.jpg';
@@ -105,8 +110,8 @@ class ItemsController {
                     description
                 });
                 res
-                    .json(item)
                     .status(201)
+                    .json(item)
                     .end();
             }
             catch (e) {
@@ -125,6 +130,21 @@ class ItemsController {
                 res
                     .json({ item })
                     .status(200)
+                    .end();
+            }
+            catch (e) {
+                console.log(e);
+                res.sendStatus(400).end();
+            }
+        });
+    }
+    deleteItem(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { id } = req.params;
+                yield models_1.Item.destroy({ where: { id } });
+                res
+                    .sendStatus(200)
                     .end();
             }
             catch (e) {

@@ -6,6 +6,7 @@ const GetItemsRouter = () => {
     router.get('/:id', ItemsController.getItem)
     router.get('/', ItemsController.getItems)
     router.post('/', ItemsController.createItem)
+    router.delete('/:id', ItemsController.deleteItem)
     return router
 }
 
