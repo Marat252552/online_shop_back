@@ -1,5 +1,5 @@
 import { Basket, User } from "../../db/models"
-import { RD_User_T, loggedReq_T, loginReq_T, refreshReq_T, signinReq_T, sqlUser_T } from "./types"
+import { RD_User_T, isDuplReq_T, loggedReq_T, loginReq_T, refreshReq_T, signinReq_T, sqlUser_T } from "./types"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
@@ -108,6 +108,19 @@ class AuthController {
         } catch (e) {
             console.log(e)
             res.sendStatus(400).end()
+        }
+    }
+    async isDupl(req: isDuplReq_T, res: any) {
+        try {
+            let {login} = req.query
+            let user = await User.findOne({where: {login}})
+            if(user) {
+                return res.status(400).json({message: 'Логин занят'}).end()
+            }
+            res.sendStatus(200)
+        } catch(e) {
+            console.log(e)
+            res.sendStatus(400)
         }
     }
     async logout(req: any, res: any) {

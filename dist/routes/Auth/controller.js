@@ -128,6 +128,22 @@ class AuthController {
             }
         });
     }
+    isDupl(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { login } = req.query;
+                let user = yield models_1.User.findOne({ where: { login } });
+                if (user) {
+                    return res.status(400).json({ message: 'Логин занят' }).end();
+                }
+                res.sendStatus(200);
+            }
+            catch (e) {
+                console.log(e);
+                res.sendStatus(400);
+            }
+        });
+    }
     logout(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

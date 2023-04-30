@@ -75,14 +75,12 @@ class ItemsController {
         // }
     }
     async createItem(req: createItemReq_T, res: any) {
-        console.log('-----------------------------', req.body)
-        console.log('-----------------------------', req.files.img)
         try {
             let {name, price, brandId, typeId, description} = req.body
             let rating = 0
             let {img} = req.files
             if(!name || !price || !img || !brandId || !typeId || !description) {
-                return res.sendStatus(400).end()
+                return res.status(400).json({message: 'Не все поля заполнены'}).end()
             }
             let imgName = v4() + '.jpg'
             img.mv(path.resolve(__dirname, './../../', 'static', imgName))
@@ -101,7 +99,7 @@ class ItemsController {
                 .end()
         } catch(e) {
             console.log(e)
-            res.sendStatus(400).end()
+            res.status(400).json({message: 'Произошла непредвиденная ошибка'}).end()
         }
     }
     async getItem(req: getItemReq_T, res: any) {

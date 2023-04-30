@@ -11,6 +11,7 @@ const GetAuthRouter = () => {
     router.post('/login', controller_1.default.login);
     router.get('/refresh', controller_1.default.refresh);
     router.get('/logged', controller_1.default.logged);
+    router.get('/isdupl', controller_1.default.isDupl);
     router.delete('/logout', controller_1.default.logout);
     return router;
 };

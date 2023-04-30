@@ -50,3 +50,9 @@ export type RD_User_T = {
         id: number
     }
 }
+
+export type isDuplReq_T = {
+    query: {
+        login: string
+    }
+}
