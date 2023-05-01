@@ -17,3 +17,9 @@ export type Item_T = {
     brandId: number,
     typeId: number
 }
+
+export type verificationReq_T = {
+    headers: {
+        authorization: string
+    }
+}

@@ -15,29 +15,50 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const models_1 = require("../../db/models");
 const uuid_1 = require("uuid");
 const path_1 = __importDefault(require("path"));
+const sequelize_1 = require("sequelize");
 class ItemsController {
     getItems(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('-----------------------------------', req.query);
             try {
-                let { brandId, typeId, limit, offset } = req.query;
-                if (!offset || !limit) {
-                    return res.sendStatus(400).end();
-                }
+                let { brandId, typeId, limit, offset, searchValue } = req.body;
                 let items = {};
-                if (brandId !== 'ANY' && typeId !== 'ANY') {
-                    items = (yield models_1.Item.findAll({ limit, offset, where: { brandId, typeId }, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                let itemsAmount;
+                if (searchValue !== '') {
+                    if (brandId != 0 && typeId != 0) {
+                        items = (yield models_1.Item.findAll({ limit, offset, where: { brandId, typeId, name: { [sequelize_1.Op.substring]: [searchValue] } }, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { brandId, typeId, name: { [sequelize_1.Op.substring]: [searchValue] } } });
+                    }
+                    if (brandId != 0 && typeId == 0) {
+                        items = (yield models_1.Item.findAll({ where: { brandId, name: { [sequelize_1.Op.substring]: [searchValue] } }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { brandId, name: { [sequelize_1.Op.substring]: [searchValue] } } });
+                    }
+                    if (brandId == 0 && typeId != 0) {
+                        items = (yield models_1.Item.findAll({ where: { typeId, name: { [sequelize_1.Op.substring]: [searchValue] } }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { typeId, name: { [sequelize_1.Op.substring]: [searchValue] } } });
+                    }
+                    if (brandId == 0 && typeId == 0) {
+                        items = (yield models_1.Item.findAll({ where: { name: { [sequelize_1.Op.substring]: [searchValue] } }, offset, limit, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { name: { [sequelize_1.Op.substring]: [searchValue] } } });
+                    }
                 }
-                if (brandId !== 'ANY' && typeId === 'ANY') {
-                    items = (yield models_1.Item.findAll({ where: { brandId }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                else {
+                    if (brandId != 0 && typeId != 0) {
+                        items = (yield models_1.Item.findAll({ limit, offset, where: { brandId, typeId }, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { brandId, typeId } });
+                    }
+                    if (brandId != 0 && typeId == 0) {
+                        items = (yield models_1.Item.findAll({ where: { brandId }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { brandId } });
+                    }
+                    if (brandId == 0 && typeId != 0) {
+                        items = (yield models_1.Item.findAll({ where: { typeId }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { typeId } });
+                    }
+                    if (brandId == 0 && typeId == 0) {
+                        items = (yield models_1.Item.findAll({ offset, limit, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count();
+                    }
                 }
-                if (brandId === 'ANY' && typeId !== 'ANY') {
-                    items = (yield models_1.Item.findAll({ where: { typeId }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
-                }
-                if (brandId === 'ANY' && typeId === 'ANY') {
-                    items = (yield models_1.Item.findAll({ offset, limit, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
-                }
-                let itemsAmount = yield models_1.Item.count();
                 res
                     .json({ items, itemsAmount })
                     .status(200)

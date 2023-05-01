@@ -1,21 +1,18 @@
 
 
 export type getUsersReq_T = {
-    query: {
+    body: {
+        roles: Array<string>,
         offset: number,
         limit: number,
-        role: string
-    },
+        searchValue: string
+    }
     headers: {
         authorization: string
     }
 }
 
-export type verificationReq_T = {
-    headers: {
-        authorization: string
-    }
-}
+
 
 export type changeRoleReq_T = {
     body: {

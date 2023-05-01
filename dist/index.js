@@ -33,6 +33,7 @@ app.use((0, cors_1.default)({
     credentials: true,
     origin: ['http://localhost:5173']
 }));
+app.use(body_parser_1.default.json());
 app.use((0, express_fileupload_1.default)({}));
 app.use(express_1.default.static(path_1.default.resolve(__dirname, 'static')));
 const AuthRouter = (0, router_1.default)();

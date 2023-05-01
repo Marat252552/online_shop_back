@@ -7,8 +7,9 @@ export type createTypeReq_T = {
 }
 
 export type getTypesReq_T = {
-    query: {
+    body: {
         offset: number,
-        limit: number
+        limit: number,
+        searchValue: string
     }
 }

@@ -1,9 +1,10 @@
 export type getItemsReq_T = {
-    query: {
+    body: {
         offset: number,
         limit: number,
-        brandId: string,
-        typeId: string
+        brandId: number,
+        typeId: number,
+        searchValue: string
     }
 }
 

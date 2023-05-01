@@ -4,8 +4,8 @@ import ItemsController from './controller'
 const GetItemsRouter = () => {
     const router = express.Router()
     router.get('/:id', ItemsController.getItem)
-    router.get('/', ItemsController.getItems)
     router.post('/', ItemsController.createItem)
+    router.post('/find', ItemsController.getItems)
     router.delete('/:id', ItemsController.deleteItem)
     return router
 }

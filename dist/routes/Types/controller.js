@@ -9,7 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const sequelize_1 = require("sequelize");
 const models_1 = require("../../db/models");
+const response_1 = require("../Response/response");
 class TypesController {
     createType(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -35,12 +37,34 @@ class TypesController {
     getTypes(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let { offset, limit } = req.query;
-                let types = yield models_1.Type.findAll({
-                    offset,
-                    limit
-                });
-                let typesAmount = yield models_1.Type.count();
+                console.log('---------------------wadawdawdaw', req.body);
+                let { offset, limit, searchValue } = req.body;
+                if (offset === undefined || limit === undefined || searchValue === undefined) {
+                    return (0, response_1.BadRequest)(res, 'Неполный запрос');
+                }
+                let types;
+                let typesAmount;
+                if (searchValue !== '') {
+                    types = yield models_1.Type.findAll({
+                        offset,
+                        limit,
+                        where: {
+                            name: { [sequelize_1.Op.substring]: searchValue }
+                        }
+                    });
+                    typesAmount = yield models_1.Type.count({
+                        where: {
+                            name: { [sequelize_1.Op.substring]: searchValue }
+                        }
+                    });
+                }
+                else {
+                    types = yield models_1.Type.findAll({
+                        offset,
+                        limit
+                    });
+                    typesAmount = yield models_1.Type.count({});
+                }
                 res
                     .json({ types, typesAmount })
                     .status(200)
@@ -48,7 +72,7 @@ class TypesController {
             }
             catch (e) {
                 console.log(e);
-                res.sendStatus(400).end();
+                (0, response_1.IntServErr)(res);
             }
         });
     }

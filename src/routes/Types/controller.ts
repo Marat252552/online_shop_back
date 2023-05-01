@@ -1,4 +1,6 @@
+import { Op } from "sequelize"
 import { Type } from "../../db/models"
+import { BadRequest, IntServErr } from "../Response/response"
 import { createTypeReq_T, getTypesReq_T } from "./types"
 
 
@@ -24,19 +26,41 @@ class TypesController {
     }
     async getTypes(req: getTypesReq_T, res: any) {
         try {
-            let {offset, limit} = req.query
-            let types = await Type.findAll({
-                offset,
-                limit
-            })
-            let typesAmount = await Type.count()
+            console.log('---------------------wadawdawdaw', req.body)
+            let {offset, limit, searchValue} = req.body
+            if(offset === undefined || limit === undefined || searchValue === undefined) {
+                return BadRequest(res, 'Неполный запрос')
+            }
+            let types
+            let typesAmount
+            if(searchValue !== '') {
+                types = await Type.findAll({
+                    offset,
+                    limit,
+                    where: {
+                        name: {[Op.substring]: searchValue}
+                    }
+                })
+                typesAmount = await Type.count({
+                    where: {
+                        name: {[Op.substring]: searchValue}
+                    }
+                })
+            } else {
+                types = await Type.findAll({
+                    offset,
+                    limit
+                })
+                typesAmount = await Type.count({
+                })
+            }
             res
                 .json({types, typesAmount})
                 .status(200)
                 .end()
         } catch(e) {
             console.log(e)
-            res.sendStatus(400).end()
+            IntServErr(res)
         }
     }
 }

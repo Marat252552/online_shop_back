@@ -22,6 +22,7 @@ app.use(cors({
     credentials: true,
     origin: ['http://localhost:5173']
 }))
+app.use(bodyParser.json())
 app.use(fileUpload({}))
 app.use(express.static(path.resolve(__dirname, 'static')))
 

@@ -3,30 +3,49 @@ import { createItemReq_T, deleteItemReq_T, getItemReq_T, getItemsReq_T } from ".
 import {v4} from 'uuid'
 import path from 'path'
 import { Item_T } from "../../shared/types";
-import { where } from "sequelize";
+import { Op, where } from "sequelize";
 
 class ItemsController {
     async getItems(req: getItemsReq_T, res: any) {
-        console.log('-----------------------------------', req.query)
         try {
-            let {brandId, typeId, limit, offset} = req.query
-            if(!offset || !limit) {
-                return res.sendStatus(400).end()
-            }
+            let {brandId, typeId, limit, offset, searchValue} = req.body
             let items = {}
-            if(brandId !== 'ANY' && typeId !== 'ANY') {
-                items = await Item.findAll({limit, offset, where: {brandId, typeId}, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-            } 
-            if(brandId !== 'ANY' && typeId === 'ANY') {
-                items = await Item.findAll({where: {brandId}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+            let itemsAmount
+            if(searchValue !== '') {
+                if(brandId != 0 && typeId != 0) {
+                    items = await Item.findAll({limit, offset, where: {brandId, typeId, name: {[Op.substring]: [searchValue]}}, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {brandId, typeId, name: {[Op.substring]: [searchValue]}}})
+                } 
+                if(brandId != 0 && typeId == 0) {
+                    items = await Item.findAll({where: {brandId, name: {[Op.substring]: [searchValue]}}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {brandId, name: {[Op.substring]: [searchValue]}}})
+                }
+                if(brandId == 0 && typeId != 0) {
+                    items = await Item.findAll({where: {typeId, name: {[Op.substring]: [searchValue]}}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {typeId, name: {[Op.substring]: [searchValue]}}})
+                }
+                if(brandId == 0 && typeId == 0) {
+                    items = await Item.findAll({where: {name: {[Op.substring]: [searchValue]}}, offset, limit, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {name: {[Op.substring]: [searchValue]}}})
+                }
+            } else {
+                if(brandId != 0 && typeId != 0) {
+                    items = await Item.findAll({limit, offset, where: {brandId, typeId}, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {brandId, typeId}})
+                } 
+                if(brandId != 0 && typeId == 0) {
+                    items = await Item.findAll({where: {brandId}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {brandId}})
+                }
+                if(brandId == 0 && typeId != 0) {
+                    items = await Item.findAll({where: {typeId}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {typeId}})
+                }
+                if(brandId == 0 && typeId == 0) {
+                    items = await Item.findAll({offset, limit, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count()
+                }
             }
-            if(brandId === 'ANY' && typeId !== 'ANY') {
-                items = await Item.findAll({where: {typeId}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-            }
-            if(brandId === 'ANY' && typeId === 'ANY') {
-                items = await Item.findAll({offset, limit, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-            }
-            let itemsAmount = await Item.count()
             res
                 .json({items, itemsAmount})
                 .status(200)

@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const uuid_1 = require("uuid");
 const path_1 = __importDefault(require("path"));
 const models_1 = require("../../db/models");
+const response_1 = require("../Response/response");
+const sequelize_1 = require("sequelize");
 class BrandsController {
     createBrand(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -63,11 +65,30 @@ class BrandsController {
     getBrands(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let { offset, limit } = req.query;
-                let brands = yield models_1.Brand.findAll({
-                    offset, limit
-                });
-                let brandsAmount = yield models_1.Brand.count();
+                let { offset, limit, searchValue } = req.body;
+                if (offset === undefined || limit === undefined || searchValue === undefined) {
+                    return (0, response_1.BadRequest)(res, 'Неполный запрос');
+                }
+                let brands;
+                let brandsAmount;
+                if (searchValue !== '') {
+                    brands = yield models_1.Brand.findAll({
+                        offset, limit, where: {
+                            name: { [sequelize_1.Op.substring]: searchValue }
+                        }
+                    });
+                    brandsAmount = yield models_1.Brand.count({
+                        where: {
+                            name: { [sequelize_1.Op.substring]: searchValue }
+                        }
+                    });
+                }
+                else {
+                    brands = yield models_1.Brand.findAll({
+                        offset, limit
+                    });
+                    brandsAmount = yield models_1.Brand.count();
+                }
                 res
                     .json({ brands, brandsAmount })
                     .status(200)
@@ -76,6 +97,22 @@ class BrandsController {
             catch (e) {
                 console.log(e);
                 res.sendStatus(400).end();
+            }
+        });
+    }
+    deleteBrand(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { id } = req.params;
+                let sql_response = yield models_1.Brand.destroy({ where: { id } });
+                if (sql_response === 0) {
+                    return (0, response_1.BadRequest)(res, 'Удаляемый объект не найден');
+                }
+                (0, response_1.OKResponse)(res, 'Объект удален');
+            }
+            catch (e) {
+                console.log(e);
+                (0, response_1.IntServErr)(res);
             }
         });
     }

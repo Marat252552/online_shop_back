@@ -16,8 +16,15 @@ export type getBrandReq_T = {
 }
 
 export type getBrandsReq_T = {
-    query: {
+    body: {
         offset: number,
-        limit: number
+        limit: number,
+        searchValue: string
+    }
+}
+
+export type deleteBrandReq_T = {
+    params: {
+        id: string
     }
 }

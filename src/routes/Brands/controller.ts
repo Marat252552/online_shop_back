@@ -1,7 +1,9 @@
 import { v4 } from "uuid"
-import { createBrandReq_T, getBrandReq_T, getBrandsReq_T } from "./types"
+import { createBrandReq_T, deleteBrandReq_T, getBrandReq_T, getBrandsReq_T } from "./types"
 import path from 'path'
 import { Brand, Item } from "../../db/models"
+import { BadRequest, IntServErr, OKResponse } from "../Response/response"
+import { Op } from "sequelize"
 
 
 class BrandsController {
@@ -45,11 +47,29 @@ class BrandsController {
     }
     async getBrands(req: getBrandsReq_T, res: any) {
         try {
-            let {offset, limit} = req.query
-            let brands = await Brand.findAll({
-                offset, limit
-            })
-            let brandsAmount = await Brand.count()
+            let {offset, limit, searchValue} = req.body
+            if(offset === undefined || limit === undefined || searchValue === undefined) {
+                return BadRequest(res, 'Неполный запрос')
+            }
+            let brands
+            let brandsAmount
+            if(searchValue !== '') {
+                brands = await Brand.findAll({
+                    offset, limit, where: {
+                        name: {[Op.substring]: searchValue}
+                    }
+                })
+                brandsAmount = await Brand.count({
+                    where: {
+                        name: {[Op.substring]: searchValue}
+                    }
+                })
+            } else {
+                brands = await Brand.findAll({
+                    offset, limit
+                })
+                brandsAmount = await Brand.count()
+            }
             res
                 .json({brands, brandsAmount})
                 .status(200)
@@ -57,6 +77,19 @@ class BrandsController {
         } catch(e) {
             console.log(e)
             res.sendStatus(400).end()
+        }
+    }
+    async deleteBrand(req: deleteBrandReq_T, res: any) {
+        try {
+            let {id} = req.params
+            let sql_response = await Brand.destroy({where: {id}})
+            if(sql_response === 0) {
+                return BadRequest(res, 'Удаляемый объект не найден')
+            }
+            OKResponse(res, 'Объект удален')
+        } catch(e) {
+            console.log(e)
+            IntServErr(res)
         }
     }
 }

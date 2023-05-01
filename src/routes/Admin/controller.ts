@@ -1,36 +1,48 @@
+import { Op } from "sequelize";
 import db from "../../db/db";
 import { User } from "../../db/models";
 import { TokenData_T } from "../../shared/types";
 import { accessUpReq_T, changeRoleReq_T, getUsersReq_T } from "./types";
 import jwt from 'jsonwebtoken'
 
-
 class AdminController {
     async getUsers(req: getUsersReq_T, res: any) {
         try {
-            let { offset, limit, role } = req.query
+            let { offset, limit, roles = ['USER', 'MANAGER'], searchValue } = req.body
             let users
-            if (role = 'ANY') {
-                users = await User.findAll({
-                    attributes: {
-                        exclude: ['password'],
+            let usersAmount
+            if(searchValue !== '') {
+                let sql_response = await User.findAll({where: {
+                    role: roles,
+                    login: {[Op.substring]: [searchValue]}
+                }, offset, limit})
+                users = sql_response.map(user => {
+                    return user.dataValues
+                })
+                usersAmount = await User.count({
+                    where: {
+                        role: roles,
+                        login: {[Op.substring]: [searchValue]},
                     },
-                    limit,
-                    offset
                 })
             } else {
-                users = await User.findAll({
-                    where: { role },
-                    attributes: {
-                        exclude: ['password']
-                    },
-                    limit,
-                    offset
+                let sql_response = await User.findAll({where: {
+                    role: roles
+                }, offset, limit})
+                users = sql_response.map(user => {
+                    return user.dataValues
+                })
+                console.log(users)
+                usersAmount = await User.count({
+                    where: {
+                        role: roles
+                    }
                 })
             }
-            users = users.filter(user => user.role !== 'ADMIN')
+            
             res.json({
-                users
+                users,
+                usersAmount
             }).status(200).end()
         } catch (e) {
             console.log(e)
