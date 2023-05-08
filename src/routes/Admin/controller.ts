@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 import db from "../../db/db";
 import { User } from "../../db/models";
 import { TokenData_T } from "../../shared/types";
-import { accessUpReq_T, changeRoleReq_T, getUsersReq_T } from "./types";
+import { changeRoleReq_T, getUsersReq_T } from "./types";
 import jwt from 'jsonwebtoken'
 
 class AdminController {

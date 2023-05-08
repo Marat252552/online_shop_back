@@ -11,6 +11,7 @@ import fileUpload from 'express-fileupload'
 import GetTypesRouter from './routes/Types/router'
 import GetBrandsRouter from './routes/Brands/router'
 import path from 'path'
+import GetBasketRouter from './routes/Basket/router'
 
 dotenv.config()
 const app = express()
@@ -31,12 +32,14 @@ const AdminRouter = GetAdminRouter()
 const ItemsRouter = GetItemsRouter()
 const TypesRouter = GetTypesRouter()
 const BrandsRouter = GetBrandsRouter()
+const BasketRouter = GetBasketRouter()
 
 app.use('/admin', AdminRouter)
 app.use('/auth', AuthRouter)
 app.use('/items', ItemsRouter)
 app.use('/types', TypesRouter)
 app.use('/brands', BrandsRouter)
+app.use('/basket', BasketRouter)
 
 const Start = async () => {
     let PORT = process.env.PORT

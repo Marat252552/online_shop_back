@@ -37,7 +37,6 @@ class TypesController {
     getTypes(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('---------------------wadawdawdaw', req.body);
                 let { offset, limit, searchValue } = req.body;
                 if (offset === undefined || limit === undefined || searchValue === undefined) {
                     return (0, response_1.BadRequest)(res, 'Неполный запрос');
@@ -69,6 +68,22 @@ class TypesController {
                     .json({ types, typesAmount })
                     .status(200)
                     .end();
+            }
+            catch (e) {
+                console.log(e);
+                (0, response_1.IntServErr)(res);
+            }
+        });
+    }
+    deleteType(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { id } = req.params;
+                let sql_response = yield models_1.Type.destroy({ where: { id } });
+                if (sql_response === 0) {
+                    return (0, response_1.BadRequest)(res, 'Удаляемый объект не найден');
+                }
+                (0, response_1.OKResponse)(res, 'Объект удален');
             }
             catch (e) {
                 console.log(e);

@@ -13,3 +13,9 @@ export type getTypesReq_T = {
         searchValue: string
     }
 }
+
+export type deleteTypeReq_T = {
+    params: {
+        id: string
+    }
+}

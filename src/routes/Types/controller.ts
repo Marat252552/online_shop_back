@@ -1,7 +1,7 @@
 import { Op } from "sequelize"
 import { Type } from "../../db/models"
-import { BadRequest, IntServErr } from "../Response/response"
-import { createTypeReq_T, getTypesReq_T } from "./types"
+import { BadRequest, IntServErr, OKResponse } from "../Response/response"
+import { createTypeReq_T, deleteTypeReq_T, getTypesReq_T } from "./types"
 
 
 
@@ -26,7 +26,6 @@ class TypesController {
     }
     async getTypes(req: getTypesReq_T, res: any) {
         try {
-            console.log('---------------------wadawdawdaw', req.body)
             let {offset, limit, searchValue} = req.body
             if(offset === undefined || limit === undefined || searchValue === undefined) {
                 return BadRequest(res, 'Неполный запрос')
@@ -58,6 +57,19 @@ class TypesController {
                 .json({types, typesAmount})
                 .status(200)
                 .end()
+        } catch(e) {
+            console.log(e)
+            IntServErr(res)
+        }
+    }
+    async deleteType(req: deleteTypeReq_T, res: any) {
+        try {
+            let {id} = req.params
+            let sql_response = await Type.destroy({where: {id}})
+            if(sql_response === 0) {
+                return BadRequest(res, 'Удаляемый объект не найден')
+            }
+            OKResponse(res, 'Объект удален')
         } catch(e) {
             console.log(e)
             IntServErr(res)

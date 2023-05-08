@@ -24,6 +24,7 @@ const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const router_4 = __importDefault(require("./routes/Types/router"));
 const router_5 = __importDefault(require("./routes/Brands/router"));
 const path_1 = __importDefault(require("path"));
+const router_6 = __importDefault(require("./routes/Basket/router"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.urlencoded({
@@ -41,11 +42,13 @@ const AdminRouter = (0, router_2.default)();
 const ItemsRouter = (0, router_3.default)();
 const TypesRouter = (0, router_4.default)();
 const BrandsRouter = (0, router_5.default)();
+const BasketRouter = (0, router_6.default)();
 app.use('/admin', AdminRouter);
 app.use('/auth', AuthRouter);
 app.use('/items', ItemsRouter);
 app.use('/types', TypesRouter);
 app.use('/brands', BrandsRouter);
+app.use('/basket', BasketRouter);
 const Start = () => __awaiter(void 0, void 0, void 0, function* () {
     let PORT = process.env.PORT;
     try {

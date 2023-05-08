@@ -1,47 +1,48 @@
-import { Brand, Item, Type } from "../../db/models";
-import { createItemReq_T, deleteItemReq_T, getItemReq_T, getItemsReq_T } from "./types";
+import { Basket, BasketDevice, Brand, Item, Type, User } from "../../db/models";
+import { addToBasketReq_T, createItemReq_T, deleteItemReq_T, getItemReq_T, getItemsReq_T } from "./types";
 import {v4} from 'uuid'
 import path from 'path'
 import { Item_T } from "../../shared/types";
 import { Op, where } from "sequelize";
+import { IntServErr, OKResponse } from "../Response/response";
 
 class ItemsController {
     async getItems(req: getItemsReq_T, res: any) {
         try {
-            let {brandId, typeId, limit, offset, searchValue} = req.body
+            let {brandTags, typeTags, limit, offset, searchValue} = req.body
             let items = {}
             let itemsAmount
             if(searchValue !== '') {
-                if(brandId != 0 && typeId != 0) {
-                    items = await Item.findAll({limit, offset, where: {brandId, typeId, name: {[Op.substring]: [searchValue]}}, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-                    itemsAmount = await Item.count({where: {brandId, typeId, name: {[Op.substring]: [searchValue]}}})
-                } 
-                if(brandId != 0 && typeId == 0) {
-                    items = await Item.findAll({where: {brandId, name: {[Op.substring]: [searchValue]}}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-                    itemsAmount = await Item.count({where: {brandId, name: {[Op.substring]: [searchValue]}}})
+                if(brandTags[0] !== undefined && typeTags[0] != undefined) {
+                    items = await Item.findAll({limit, offset, where: {brandId: brandTags, typeId: typeTags, name: {[Op.substring]: [searchValue]}}, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {brandId: brandTags, typeId: typeTags, name: {[Op.substring]: [searchValue]}}})
                 }
-                if(brandId == 0 && typeId != 0) {
-                    items = await Item.findAll({where: {typeId, name: {[Op.substring]: [searchValue]}}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-                    itemsAmount = await Item.count({where: {typeId, name: {[Op.substring]: [searchValue]}}})
+                if(brandTags[0] !== undefined && typeTags[0] === undefined) {
+                    items = await Item.findAll({where: {brandId: brandTags, name: {[Op.substring]: [searchValue]}}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {brandId: brandTags, name: {[Op.substring]: [searchValue]}}})
                 }
-                if(brandId == 0 && typeId == 0) {
+                if(brandTags[0] === undefined && typeTags[0] !== undefined) {
+                    items = await Item.findAll({where: {typeId: typeTags, name: {[Op.substring]: [searchValue]}}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {typeId: typeTags, name: {[Op.substring]: [searchValue]}}})
+                }
+                if(brandTags[0] === undefined && typeTags[0] === undefined) {
                     items = await Item.findAll({where: {name: {[Op.substring]: [searchValue]}}, offset, limit, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
                     itemsAmount = await Item.count({where: {name: {[Op.substring]: [searchValue]}}})
                 }
             } else {
-                if(brandId != 0 && typeId != 0) {
-                    items = await Item.findAll({limit, offset, where: {brandId, typeId}, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-                    itemsAmount = await Item.count({where: {brandId, typeId}})
-                } 
-                if(brandId != 0 && typeId == 0) {
-                    items = await Item.findAll({where: {brandId}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-                    itemsAmount = await Item.count({where: {brandId}})
+                if(brandTags[0] !== undefined && typeTags[0] !== undefined) {
+                    items = await Item.findAll({limit, offset, where: {brandId: brandTags, typeId: typeTags}, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {brandId: brandTags, typeId: typeTags}})
                 }
-                if(brandId == 0 && typeId != 0) {
-                    items = await Item.findAll({where: {typeId}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
-                    itemsAmount = await Item.count({where: {typeId}})
+                if(brandTags[0] !== undefined && typeTags[0] === undefined) {
+                    items = await Item.findAll({where: {brandId: brandTags}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {brandId: brandTags}})
                 }
-                if(brandId == 0 && typeId == 0) {
+                if(brandTags[0] === undefined && typeTags[0] !== undefined) {
+                    items = await Item.findAll({where: {typeId: typeTags}, limit, offset, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
+                    itemsAmount = await Item.count({where: {typeId: typeTags}})
+                }
+                if(brandTags[0] === undefined && typeTags[0] === undefined) {
                     items = await Item.findAll({offset, limit, include: [{model: Brand, as: 'brand'}, {model: Type, as: 'type'}]}) as any
                     itemsAmount = await Item.count()
                 }
@@ -54,44 +55,6 @@ class ItemsController {
             console.log(e)
             res.sendStatus(400).end()
         }
-        // try {
-        //     let {brandId,limit,offset,typeId} = req.query
-        //     if(!brandId || !limit || !offset|| !typeId) {
-        //         return res.sendStatus(400).end()
-        //     }
-        //     let items
-        //     if(brandId === 'ANY' && typeId === 'ANY') {
-        //         items = await Item.findAll({
-        //             offset,
-        //             limit
-        //         })
-        //     }
-        //     if(brandId === 'ANY') {
-        //         items = await Item.findAll({
-        //             where: {typeId},
-        //             offset,
-        //             limit
-        //         })
-        //     }
-        //     if(typeId === 'ANY') {
-        //         items = await Item.findAll({
-        //             where: {brandId},
-        //             offset,
-        //             limit
-        //         })
-        //     }
-        //     if(typeId !== 'ANY' && brandId !== 'ANY') {
-        //         items = await Item.findAll({
-        //             where: {brandId, typeId},
-        //             offset,
-        //             limit
-        //         })
-        //     }
-        //     res.json({items}).status(200).end()
-        // } catch(e) {
-        //     console.log(e)
-        //     res.sendStatus(400).end()
-        // }
     }
     async createItem(req: createItemReq_T, res: any) {
         try {
@@ -146,6 +109,24 @@ class ItemsController {
         } catch(e) {
             console.log(e)
             res.sendStatus(400).end()
+        }
+    }
+    async addToBasket(req: addToBasketReq_T, res: any) {
+        try {
+            let itemId = req.params.id
+            let {basketId} = res.locals.user
+            await BasketDevice.create({
+                basketId,
+                itemId
+            })
+            let basket = await Basket.findOne({
+                where: {id: 5},
+                include: [{ model: BasketDevice, as: 'basket_devices' }]
+            })
+            res.status(200).json({message: 'Добавлено в корзину', basket})
+        } catch(e) {
+            console.log(e)
+            IntServErr(res)
         }
     }
 }

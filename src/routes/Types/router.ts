@@ -6,6 +6,7 @@ const GetTypesRouter = () => {
     let router = express.Router()
     router.post('/find', TypesController.getTypes)
     router.post('/', TypesController.createType)
+    router.delete('/:id', TypesController.deleteType)
     return router
 }
 

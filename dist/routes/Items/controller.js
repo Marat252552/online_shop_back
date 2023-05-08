@@ -16,45 +16,46 @@ const models_1 = require("../../db/models");
 const uuid_1 = require("uuid");
 const path_1 = __importDefault(require("path"));
 const sequelize_1 = require("sequelize");
+const response_1 = require("../Response/response");
 class ItemsController {
     getItems(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let { brandId, typeId, limit, offset, searchValue } = req.body;
+                let { brandTags, typeTags, limit, offset, searchValue } = req.body;
                 let items = {};
                 let itemsAmount;
                 if (searchValue !== '') {
-                    if (brandId != 0 && typeId != 0) {
-                        items = (yield models_1.Item.findAll({ limit, offset, where: { brandId, typeId, name: { [sequelize_1.Op.substring]: [searchValue] } }, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
-                        itemsAmount = yield models_1.Item.count({ where: { brandId, typeId, name: { [sequelize_1.Op.substring]: [searchValue] } } });
+                    if (brandTags[0] !== undefined && typeTags[0] != undefined) {
+                        items = (yield models_1.Item.findAll({ limit, offset, where: { brandId: brandTags, typeId: typeTags, name: { [sequelize_1.Op.substring]: [searchValue] } }, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { brandId: brandTags, typeId: typeTags, name: { [sequelize_1.Op.substring]: [searchValue] } } });
                     }
-                    if (brandId != 0 && typeId == 0) {
-                        items = (yield models_1.Item.findAll({ where: { brandId, name: { [sequelize_1.Op.substring]: [searchValue] } }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
-                        itemsAmount = yield models_1.Item.count({ where: { brandId, name: { [sequelize_1.Op.substring]: [searchValue] } } });
+                    if (brandTags[0] !== undefined && typeTags[0] === undefined) {
+                        items = (yield models_1.Item.findAll({ where: { brandId: brandTags, name: { [sequelize_1.Op.substring]: [searchValue] } }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { brandId: brandTags, name: { [sequelize_1.Op.substring]: [searchValue] } } });
                     }
-                    if (brandId == 0 && typeId != 0) {
-                        items = (yield models_1.Item.findAll({ where: { typeId, name: { [sequelize_1.Op.substring]: [searchValue] } }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
-                        itemsAmount = yield models_1.Item.count({ where: { typeId, name: { [sequelize_1.Op.substring]: [searchValue] } } });
+                    if (brandTags[0] === undefined && typeTags[0] !== undefined) {
+                        items = (yield models_1.Item.findAll({ where: { typeId: typeTags, name: { [sequelize_1.Op.substring]: [searchValue] } }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { typeId: typeTags, name: { [sequelize_1.Op.substring]: [searchValue] } } });
                     }
-                    if (brandId == 0 && typeId == 0) {
+                    if (brandTags[0] === undefined && typeTags[0] === undefined) {
                         items = (yield models_1.Item.findAll({ where: { name: { [sequelize_1.Op.substring]: [searchValue] } }, offset, limit, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
                         itemsAmount = yield models_1.Item.count({ where: { name: { [sequelize_1.Op.substring]: [searchValue] } } });
                     }
                 }
                 else {
-                    if (brandId != 0 && typeId != 0) {
-                        items = (yield models_1.Item.findAll({ limit, offset, where: { brandId, typeId }, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
-                        itemsAmount = yield models_1.Item.count({ where: { brandId, typeId } });
+                    if (brandTags[0] !== undefined && typeTags[0] !== undefined) {
+                        items = (yield models_1.Item.findAll({ limit, offset, where: { brandId: brandTags, typeId: typeTags }, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { brandId: brandTags, typeId: typeTags } });
                     }
-                    if (brandId != 0 && typeId == 0) {
-                        items = (yield models_1.Item.findAll({ where: { brandId }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
-                        itemsAmount = yield models_1.Item.count({ where: { brandId } });
+                    if (brandTags[0] !== undefined && typeTags[0] === undefined) {
+                        items = (yield models_1.Item.findAll({ where: { brandId: brandTags }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { brandId: brandTags } });
                     }
-                    if (brandId == 0 && typeId != 0) {
-                        items = (yield models_1.Item.findAll({ where: { typeId }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
-                        itemsAmount = yield models_1.Item.count({ where: { typeId } });
+                    if (brandTags[0] === undefined && typeTags[0] !== undefined) {
+                        items = (yield models_1.Item.findAll({ where: { typeId: typeTags }, limit, offset, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
+                        itemsAmount = yield models_1.Item.count({ where: { typeId: typeTags } });
                     }
-                    if (brandId == 0 && typeId == 0) {
+                    if (brandTags[0] === undefined && typeTags[0] === undefined) {
                         items = (yield models_1.Item.findAll({ offset, limit, include: [{ model: models_1.Brand, as: 'brand' }, { model: models_1.Type, as: 'type' }] }));
                         itemsAmount = yield models_1.Item.count();
                     }
@@ -68,44 +69,6 @@ class ItemsController {
                 console.log(e);
                 res.sendStatus(400).end();
             }
-            // try {
-            //     let {brandId,limit,offset,typeId} = req.query
-            //     if(!brandId || !limit || !offset|| !typeId) {
-            //         return res.sendStatus(400).end()
-            //     }
-            //     let items
-            //     if(brandId === 'ANY' && typeId === 'ANY') {
-            //         items = await Item.findAll({
-            //             offset,
-            //             limit
-            //         })
-            //     }
-            //     if(brandId === 'ANY') {
-            //         items = await Item.findAll({
-            //             where: {typeId},
-            //             offset,
-            //             limit
-            //         })
-            //     }
-            //     if(typeId === 'ANY') {
-            //         items = await Item.findAll({
-            //             where: {brandId},
-            //             offset,
-            //             limit
-            //         })
-            //     }
-            //     if(typeId !== 'ANY' && brandId !== 'ANY') {
-            //         items = await Item.findAll({
-            //             where: {brandId, typeId},
-            //             offset,
-            //             limit
-            //         })
-            //     }
-            //     res.json({items}).status(200).end()
-            // } catch(e) {
-            //     console.log(e)
-            //     res.sendStatus(400).end()
-            // }
         });
     }
     createItem(req, res) {
@@ -169,6 +132,27 @@ class ItemsController {
             catch (e) {
                 console.log(e);
                 res.sendStatus(400).end();
+            }
+        });
+    }
+    addToBasket(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let itemId = req.params.id;
+                let { basketId } = res.locals.user;
+                yield models_1.BasketDevice.create({
+                    basketId,
+                    itemId
+                });
+                let basket = yield models_1.Basket.findOne({
+                    where: { id: 5 },
+                    include: [{ model: models_1.BasketDevice, as: 'basket_devices' }]
+                });
+                res.status(200).json({ message: 'Добавлено в корзину', basket });
+            }
+            catch (e) {
+                console.log(e);
+                (0, response_1.IntServErr)(res);
             }
         });
     }

@@ -2,8 +2,8 @@ export type getItemsReq_T = {
     body: {
         offset: number,
         limit: number,
-        brandId: number,
-        typeId: number,
+        brandTags: Array<number>,
+        typeTags: Array<number>,
         searchValue: string
     }
 }
@@ -29,5 +29,15 @@ export type deleteItemReq_T = {
 export type getItemReq_T = {
     params: {
         id: number
+    }
+}
+
+export type addToBasketReq_T = {
+    headers: {
+        authorization: string
+    },
+    params: {
+        // id товара
+        id: string
     }
 }

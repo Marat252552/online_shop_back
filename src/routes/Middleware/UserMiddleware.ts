@@ -12,9 +12,10 @@ class ManagerMiddleWare {
                 return Unauthorized(res)
             }
             let decodedToken: TokenData_T = jwt.decode(AccessToken) as any
-            if(decodedToken.role !== 'MANAGER') {
+            if(decodedToken.role !== 'USER') {
                 return Forbidden(res)
             }
+            res.locals.user = decodedToken
             next()
         } catch(e) {
             console.log(e)
