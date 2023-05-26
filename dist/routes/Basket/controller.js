@@ -18,7 +18,7 @@ class BasketController {
                 let { basketId } = res.locals.user;
                 let basket = yield models_1.Basket.findOne({
                     where: { id: basketId },
-                    include: [{ model: models_1.BasketDevice, as: 'basket_devices' }]
+                    include: [{ model: models_1.BasketDevice, as: 'basket_devices' }],
                 });
                 res.status(200).json({ basket }).end();
             }

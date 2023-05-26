@@ -1,15 +1,16 @@
 import { Sequelize } from "sequelize";
+import dotenv from 'dotenv'
 
-
+dotenv.config()
 
 const db = new Sequelize(
-    'online_shop',
-    'postgres',
-    'T69Ru251',
+    process.env.DB_NAME,
+    process.env.DB_USERNAME,
+    process.env.DB_PASSWORD,
     {
-        dialect: 'postgres',
-        host: 'localhost',
-        port: 5432
+        dialect: process.env.DB_DIALECT,
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT
     }
 )
 
